@@ -133,6 +133,13 @@ return [
             'path' => storage_path('logs/syncContacts.log'),
             'level' => env('LOG_LEVEL', 'debug'),
         ],
+
+        /* Contact Update webhook of Hubspot Logging */
+        'webhookHubspot' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/webhookHubspot.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
     ],
 
 ];

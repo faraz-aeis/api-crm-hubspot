@@ -43,7 +43,7 @@ class SyncContacts extends Command
             $this->infoLog('syncContacts', __FILE__, __LINE__, "Sync Contacts From HubSpot Started");
             $client = new Client(['base_uri' => $this->apiUrl]);
             $hubspot = \HubSpot\Factory::createWithAccessToken($this->bearerToken, $client);
-            $response = $hubspot->crm()->contacts()->basicApi()->getPage(10, null, ["phone", "firstname", "lastname", "date_of_birth", "mobilephone", "gender", "email", "hs_content_membership_status"], null, null, false);
+            $response = $hubspot->crm()->contacts()->basicApi()->getPage(10, null, ["phone", "firstname", "lastname", "date_of_birth", "mobilephone", "gender", "email", "hs_content_membership_status", "hs_object_id"], null, null, false);
             $count = 0;
 
             foreach ($response->getResults() as $val) {
@@ -53,6 +53,8 @@ class SyncContacts extends Command
                 if ($contact['hs_content_membership_status'] == null || $contact['hs_content_membership_status'] == '') {
                     $contact['hs_content_membership_status'] = 'inactive';
                 }
+                //$hubspot_id = explode(':', $contact['sourceId']);
+
                 $result = Contact::firstOrCreate(
                     ['email' => $contact['email']],
                     [
@@ -63,6 +65,8 @@ class SyncContacts extends Command
                         'date_of_birth' => $contact['date_of_birth'],
                         'gender' => $contact['gender'],
                         'contact_status_id' => $contact['hs_content_membership_status'] == 'active' ? 1 : 2,
+                        'hubspot_id' => $contact['hs_object_id'],
+                        'contact_type_id' => 2,
                         'created_at' => \Carbon\Carbon::parse($contact['createdate'])->toDateTimeString(),
                         'updated_at' => \Carbon\Carbon::parse($contact['lastmodifieddate'])->toDateTimeString()
                     ]
@@ -87,7 +91,7 @@ class SyncContacts extends Command
             }
         } catch (Exception $exception) {
             $this->debugLog('syncContacts', __FILE__, __LINE__, $exception);
-            return $this->respondInternalError();
+            //return $this->respondInternalError();
         }
 
         /* Create a contact */
