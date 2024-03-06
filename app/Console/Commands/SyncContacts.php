@@ -47,13 +47,11 @@ class SyncContacts extends Command
             $count = 0;
 
             foreach ($response->getResults() as $val) {
-                //print_r($val->getProperties());
                 $contact = $val->getProperties();
 
                 if ($contact['hs_content_membership_status'] == null || $contact['hs_content_membership_status'] == '') {
                     $contact['hs_content_membership_status'] = 'inactive';
                 }
-                //$hubspot_id = explode(':', $contact['sourceId']);
 
                 $result = Contact::firstOrCreate(
                     ['email' => $contact['email']],
@@ -71,15 +69,12 @@ class SyncContacts extends Command
                         'updated_at' => \Carbon\Carbon::parse($contact['lastmodifieddate'])->toDateTimeString()
                     ]
                 );
-                // var_dump($result);
-                // die;
                 if (!$result->wasRecentlyCreated) {
                     $alreadyExists[] = $contact['email'];
                 } else {
                     $count = $count + 1;
                 }
             }
-
             if (isset($alreadyExists)) {
                 $msg = "These records already exists : " . implode(", ", $alreadyExists) . ". $count new records added.";
                 echo $msg;
@@ -91,54 +86,6 @@ class SyncContacts extends Command
             }
         } catch (Exception $exception) {
             $this->debugLog('syncContacts', __FILE__, __LINE__, $exception);
-            //return $this->respondInternalError();
         }
-
-        /* Create a contact */
-        // $contactInput = new \HubSpot\Client\Crm\Contacts\Model\SimplePublicObjectInputForCreate();
-        // $contactInput->setProperties([
-        //     'email' => 'test@example.com'
-        // ]);
-
-        // $contact = $hubspot->crm()->contacts()->basicApi()->create($contactInput);
-        // var_dump($contact);
-
-
-
-        /* Update a contact */
-        // $contactId = 301;
-        // $newProperties = new \HubSpot\Client\Crm\Contacts\Model\SimplePublicObjectInput();
-        // $newProperties->setProperties([
-        //     'email' => 'updatedExample@example.com',
-        //     'firstname' => 'Test First Name',
-        //     'lastname' => 'Test Second Name',
-        //     'date_of_birth' => '2010-01-02',
-        //     'gender' => 'f',
-        //     'phone' => '0123456789',
-        //     'mobilephone' => '9876543210',
-        //     'hs_content_membership_status' => 'inactive'
-        // ]);
-
-        // $hubspot->crm()->contacts()->basicApi()->update($contactId, $newProperties);
-
-        /* Search a contact */
-        // $search = "akumar@aeis.com";
-        // $filter = new \HubSpot\Client\Crm\Contacts\Model\Filter();
-        // $filter
-        //     ->setOperator('EQ')
-        //     ->setPropertyName('email')
-        //     ->setValue($search);
-
-        // $filterGroup = new \HubSpot\Client\Crm\Contacts\Model\FilterGroup();
-        // $filterGroup->setFilters([$filter]);
-
-        // $searchRequest = new \HubSpot\Client\Crm\Contacts\Model\PublicObjectSearchRequest();
-        // $searchRequest->setFilterGroups([$filterGroup]);
-
-        // // Get specific properties
-        // $searchRequest->setProperties(['firstname', 'lastname', 'date_of_birth', 'gender', 'email', 'phone', 'mobilephone', 'status']);
-        // $contactsPage = $hubspot->crm()->contacts()->searchApi()->doSearch($searchRequest);
-
-        // echo $contactsPage;
     }
 }
