@@ -89,18 +89,22 @@ class ContactController extends Controller
                             'date_of_birth' => isset($data['date_of_birth']) ? $data['date_of_birth'] : null,
                             'gender' => isset($data['gender']) ? $data['gender'] : null,
                             'contact_status_id' => $contact_status_id,
+                            'contact_type_id' => 2,
                             'hubspot_id' => isset($data['hubspot_id']) ? $data['hubspot_id'] : null
                         ]
                     );
                     if (!$result->wasRecentlyCreated) {
                         $alreadyExists[] = $data['email'];
                     }
-
                     if (isset($alreadyExists)) {
-                        $msg = "Records already exists for " . $data['first_name'] . " " . $data['last_name'] . ".";
+                        $f_name = (isset($data['first_name'])) ? $data['first_name'] : "Default first name";
+                        $l_name = (isset($data['last_name'])) ? $data['last_name'] : "Default last name";
+                        $msg = "Records already exists for " . $f_name . " " . $l_name . ".";
                         $this->infoLog('webhookHubspot', __FILE__, __LINE__, $msg);
                     } else {
-                        $msg = "New records added with name: " . $data['first_name'] . " " . $data['last_name'] . ".";
+                        $f_name = (isset($data['first_name'])) ? $data['first_name'] : "Default first name";
+                        $l_name = (isset($data['last_name'])) ? $data['last_name'] : "Default last name";
+                        $msg = "New records added with name: " . $f_name . " " . $l_name . ".";
                         $this->infoLog('webhookHubspot', __FILE__, __LINE__, $msg);
                     }
                 } else {
@@ -124,54 +128,87 @@ class ContactController extends Controller
                     switch ($propertyName) {
                         case "email":
                             $res = Contact::where('hubspot_id', $contact['objectId'])->first();
-                            $contactName = $res->first_name . ' ' . $res->last_name;
-                            $res->update(['email' => $contact['propertyValue']]);
+                            if ($res) {
+                                $contactName = $res->first_name . ' ' . $res->last_name;
+                                $res->update(['email' => $contact['propertyValue']]);
+                            } else {
+                                $this->infoLog('webhookHubspot', __FILE__, __LINE__, 'Record not found to update.');
+                            }
                             break;
                         case "firstname":
                             $res = Contact::where('hubspot_id', $contact['objectId'])->first();
-                            $contactName = $res->first_name . ' ' . $res->last_name;
-                            $res->update(['first_name' => $contact['propertyValue']]);
+                            if ($res) {
+                                $contactName = $res->first_name . ' ' . $res->last_name;
+                                $res->update(['first_name' => $contact['propertyValue']]);
+                            } else {
+                                $this->infoLog('webhookHubspot', __FILE__, __LINE__, 'Record not found to update.');
+                            }
                             break;
                         case "lastname":
                             $res = Contact::where('hubspot_id', $contact['objectId'])->first();
-                            $contactName = $res->first_name . ' ' . $res->last_name;
-                            $res->update(['last_name' => $contact['propertyValue']]);
+                            if ($res) {
+                                $contactName = $res->first_name . ' ' . $res->last_name;
+                                $res->update(['last_name' => $contact['propertyValue']]);
+                            } else {
+                                $this->infoLog('webhookHubspot', __FILE__, __LINE__, 'Record not found to update.');
+                            }
                             break;
                         case "phone":
                             $res = Contact::where('hubspot_id', $contact['objectId'])->first();
-                            $contactName = $res->first_name . ' ' . $res->last_name;
-                            $res->update(['phone_no' => $contact['propertyValue']]);
+                            if ($res) {
+                                $contactName = $res->first_name . ' ' . $res->last_name;
+                                $res->update(['phone_no' => $contact['propertyValue']]);
+                            } else {
+                                $this->infoLog('webhookHubspot', __FILE__, __LINE__, 'Record not found to update.');
+                            }
                             break;
                         case "mobilephone":
                             $res = Contact::where('hubspot_id', $contact['objectId'])->first();
-                            $contactName = $res->first_name . ' ' . $res->last_name;
-                            $res->update(['mobile_no' => $contact['propertyValue']]);
+                            if ($res) {
+                                $contactName = $res->first_name . ' ' . $res->last_name;
+                                $res->update(['mobile_no' => $contact['propertyValue']]);
+                            } else {
+                                $this->infoLog('webhookHubspot', __FILE__, __LINE__, 'Record not found to update.');
+                            }
                             break;
                         case "date_of_birth":
                             $res = Contact::where('hubspot_id', $contact['objectId'])->first();
-                            $contactName = $res->first_name . ' ' . $res->last_name;
-                            $res->update(['date_of_birth' => \Carbon\Carbon::createFromTimestampMs($contact['propertyValue'], 'Asia/Kolkata')->toDateString()]);
+                            if ($res) {
+                                $contactName = $res->first_name . ' ' . $res->last_name;
+                                $res->update(['date_of_birth' => \Carbon\Carbon::createFromTimestampMs($contact['propertyValue'], 'Asia/Kolkata')->toDateString()]);
+                            } else {
+                                $this->infoLog('webhookHubspot', __FILE__, __LINE__, 'Record not found to update.');
+                            }
                             break;
                         case "gender":
                             $res = Contact::where('hubspot_id', $contact['objectId'])->first();
-                            $contactName = $res->first_name . ' ' . $res->last_name;
-                            $res->update(['gender' => $contact['propertyValue']]);
+                            if ($res) {
+                                $contactName = $res->first_name . ' ' . $res->last_name;
+                                $res->update(['gender' => $contact['propertyValue']]);
+                            } else {
+                                $this->infoLog('webhookHubspot', __FILE__, __LINE__, 'Record not found to update.');
+                            }
                             break;
                         case "hs_content_membership_status":
                             $res = Contact::where('hubspot_id', $contact['objectId'])->first();
-                            $contactName = $res->first_name . ' ' . $res->last_name;
-                            $res->update(['contact_status_id' => $contact['propertyValue'] == 'active' ? 1 : 2]);
+                            if ($res) {
+                                $contactName = $res->first_name . ' ' . $res->last_name;
+                                $res->update(['contact_status_id' => $contact['propertyValue'] == 'active' ? 1 : 2]);
+                            } else {
+                                $this->infoLog('webhookHubspot', __FILE__, __LINE__, 'Record not found to update.');
+                            }
                             break;
                         default:
                             $this->infoLog('webhookHubspot', __FILE__, __LINE__, 'Unknown Property');
                     }
-                    $msg = $contact['propertyName'] . " of $contactName updated to " . $contact['propertyValue'];
-                    $this->infoLog('webhookHubspot', __FILE__, __LINE__, $msg);
+                    if (isset($contactName)) {
+                        $msg = $contact['propertyName'] . " of $contactName updated to " . $contact['propertyValue'];
+                        $this->infoLog('webhookHubspot', __FILE__, __LINE__, $msg);
+                    }
                 }
             }
         } catch (Exception $exception) {
             $this->debugLog('webhookHubspot', __FILE__, __LINE__, $exception);
-            //return $this->respondInternalError();
         }
 
     }
