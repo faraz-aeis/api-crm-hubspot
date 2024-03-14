@@ -140,6 +140,13 @@ return [
             'path' => storage_path('logs/webhookHubspot.log'),
             'level' => env('LOG_LEVEL', 'debug'),
         ],
+
+        /* Account Sync Logging */
+        'syncAccounts' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/syncAccounts.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+        ]
     ],
 
 ];
